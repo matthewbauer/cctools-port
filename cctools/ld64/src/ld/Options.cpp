@@ -3378,6 +3378,11 @@ void Options::parse(int argc, const char* argv[])
 				const char* path = checkForNullArgument(arg, argv[++i]);
 				fRPaths.push_back(path);
 			}
+			else if ( strcmp(arg, "-rpath-link") == 0 ) {
+				const char* path = argv[++i];
+				if ( path == NULL )
+					throw "missing argument to -rpath-link";
+			}
 			else if ( strcmp(arg, "-read_only_stubs") == 0 ) {
 				fReadOnlyx86Stubs = true;
 			}
@@ -5705,7 +5710,8 @@ void Options::checkIllegalOptionCombinations()
 		throw "-r and -dead_strip cannot be used together";
 
 	// can't use -rpath unless targeting 10.5 or later
-	if ( fRPaths.size() > 0 ) {
+	/* cctools-port */
+	/* if ( fRPaths.size() > 0 ) {
 		if ( !platforms().minOS(ld::version2008) )
 			throw "-rpath can only be used when targeting Mac OS X 10.5 or later";
 		switch ( fOutputKind ) {
@@ -5720,8 +5726,8 @@ void Options::checkIllegalOptionCombinations()
 			case Options::kKextBundle:
 				throw "-rpath can only be used when creating a dynamic final linked image";
 		}
-	}
-	
+	}*/
+
 	if ( fPositionIndependentExecutable ) {
 		switch ( fOutputKind ) {
 			case Options::kDynamicExecutable:
