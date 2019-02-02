@@ -558,8 +558,8 @@ private:
 		bool					containsNonWildcard(const char*) const;
 		bool					empty() const			{ return fRegular.empty() && fWildCard.empty(); }
 		bool					hasWildCards() const	{ return !fWildCard.empty(); }
-		NameSet::iterator		regularBegin() const	{ return fRegular.begin(); }
-		NameSet::iterator		regularEnd() const		{ return fRegular.end(); }
+		NameSet::const_iterator		regularBegin() const	{ return fRegular.begin(); }
+		NameSet::const_iterator		regularEnd() const		{ return fRegular.end(); }
 		void					remove(const NameSet&);
 		std::vector<const char*>		data() const;
 	private:
@@ -870,7 +870,7 @@ private:
 	uint8_t								fMaxDefaultCommonAlign;
 	UnalignedPointerTreatment			fUnalignedPointerTreatment;
 	mutable std::vector<DependencyEntry> fDependencies;
-#ifdef TAPI_SUPPOTR
+#ifdef TAPI_SUPPORT
 	mutable std::vector<Options::TAPIInterface> fTAPIFiles;
 #endif
 

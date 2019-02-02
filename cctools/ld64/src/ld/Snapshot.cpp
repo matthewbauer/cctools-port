@@ -228,6 +228,19 @@ void Snapshot::copyFileToSnapshot(const char *sourcePath, const char *subdir, ch
     memmove(path, relPath, 1+strlen(relPath));
 }
 
+int mkpath(char* file_path, mode_t mode) {
+  assert(file_path && *file_path);
+  char* p;
+  for (p=strchr(file_path+1, '/'); p; p=strchr(p+1, '/')) {
+    *p='\0';
+    if (mkdir(file_path, mode)==-1) {
+      if (errno!=EEXIST) { *p='/'; return -1; }
+    }
+    *p='/';
+  }
+  return 0;
+}
+
 // Create the snapshot root directory.
 void Snapshot::createSnapshot()
 {
@@ -245,7 +258,7 @@ void Snapshot::createSnapshot()
         buildUniquePath(buf, NULL, fSnapshotName);
         fRootDir = strdup(buf);
 
-        int mkpatherr = mkpath_np(fRootDir, (S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH|S_IXUSR|S_IXGRP|S_IXOTH));
+        int mkpatherr = mkpath(buf, (S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH|S_IXUSR|S_IXGRP|S_IXOTH));
         if ((mkpatherr!=0) && !(fRecordKext && (mkpatherr==EEXIST))) {
             warning("unable to create link snapshot directory: %s", fRootDir);
             fRootDir = NULL;

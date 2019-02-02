@@ -1260,7 +1260,7 @@ std::vector<const char*> Options::exportsData() const
 std::vector<const char*> Options::SetWithWildcards::data() const
 {
 	std::vector<const char*> data;
-	for (NameSet::iterator it=regularBegin(); it != regularEnd(); ++it) {
+	for (NameSet::const_iterator it=regularBegin(); it != regularEnd(); ++it) {
 		data.push_back(*it);
 	}
 	for (std::vector<const char*>::const_iterator it=fWildCard.begin(); it != fWildCard.end(); ++it) {
@@ -4695,9 +4695,11 @@ void Options::reconfigureDefaults()
 		case Options::kDynamicBundle:
 			break;
 		case Options::kDyld:
+#ifdef CPU_SUBTYPE_ARM64_E
 			// arm64e has support for compressed LINKEDIT.
 			if ( (fArchitecture == CPU_TYPE_ARM64) && (fSubArchitecture == CPU_SUBTYPE_ARM64_E) )
 				break;
+#endif
 		case Options::kPreload:
 		case Options::kStaticExecutable:
 		case Options::kObjectFile:
@@ -5525,7 +5527,7 @@ void Options::checkIllegalOptionCombinations()
 
 	// make sure all required exported symbols exist
 	std::vector<const char*> impliedExports;
-	for (NameSet::iterator it=fExportSymbols.regularBegin(); it != fExportSymbols.regularEnd(); ++it) {
+	for (NameSet::const_iterator it=fExportSymbols.regularBegin(); it != fExportSymbols.regularEnd(); ++it) {
 		const char* name = *it;
 		const int len = strlen(name);
 		if ( (strcmp(&name[len-3], ".eh") == 0) || (strncmp(name, ".objc_category_name_", 20) == 0) ) {
@@ -5557,7 +5559,7 @@ void Options::checkIllegalOptionCombinations()
 	}
 
 	// make sure all required re-exported symbols exist
-	for (NameSet::iterator it=fReExportSymbols.regularBegin(); it != fReExportSymbols.regularEnd(); ++it) {
+	for (NameSet::const_iterator it=fReExportSymbols.regularBegin(); it != fReExportSymbols.regularEnd(); ++it) {
 		fInitialUndefines.push_back(*it);
 	}
 
@@ -5769,9 +5771,12 @@ void Options::checkIllegalOptionCombinations()
 	if (platforms().count() > 2) {
 		throw "Illegal platform count.  Only 2 platforms at a maximum can be specified";
 	}
-
+#ifdef CPU_TYPE_X86
 	// Convert from -ios_version_min to -ios_simulator_version_min for now until clang has been updated
 	if (architecture() == CPU_TYPE_X86_64 || architecture() == CPU_TYPE_X86) {
+#else
+	if (architecture() == CPU_TYPE_X86_64) {
+#endif
 		if (platforms().contains(ld::kPlatform_iOS)) {
 			uint32_t version = platforms().minOS(ld::kPlatform_iOS);
 			fPlatforms.erase(ld::kPlatform_iOS);
